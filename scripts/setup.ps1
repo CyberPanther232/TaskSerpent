@@ -110,7 +110,7 @@ function Copy-IfMissing {
 
 Show-ProgressBar -Activity "Setup TaskSerpent" -PercentComplete 70 -Status "Configuring Docker Files..."
 
-Copy-IfMissing -Source "serve.example.json" -Dest "serve.json"
+Copy-IfMissing -Source "serve.json.example" -Dest "serve.json"
 Copy-IfMissing -Source "docker-compose.example.yml" -Dest "docker-compose.yml"
 Copy-IfMissing -Source "Dockerfile.example" -Dest "Dockerfile"
 

@@ -32,16 +32,16 @@ You can run the setup script directly without manually downloading the repositor
 
 **Windows (PowerShell):**
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/master/scripts/setup.ps1'))
 ```
 *Or using the newer syntax:*
 ```powershell
-irm https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.ps1 | iex
+irm https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/master/scripts/setup.ps1 | iex
 ```
 
 **Linux / macOS (Bash):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/master/scripts/setup.sh | bash
 ```
 
 ---

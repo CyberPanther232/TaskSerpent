@@ -102,24 +102,36 @@ echo "Meaning Docker Compose setup..."
 show_progress 7 10 "Configuring Docker files..."
 
 if [ ! -f serve.json ]; then
-    mv serve.example.json serve.json
-    echo "serve.json file created from serve.example.json. Please review and update it as needed."
+    if [ -f serve.json.example ]; then
+        cp serve.json.example serve.json
+        echo "serve.json file created from serve.json.example."
+    else
+        echo "Warning: serve.json.example not found. Skipping creation of serve.json."
+    fi
 else
-    echo "serve.json file already exists. Please review it to ensure it contains the correct configuration."
+    echo "serve.json file already exists."
 fi
 
 if [ ! -f docker-compose.yml ]; then
-    mv docker-compose.example.yml docker-compose.yml
-    echo "docker-compose.yml file created from docker-compose.example.yml. Please review and update it as needed."
+    if [ -f docker-compose.example.yml ]; then
+        cp docker-compose.example.yml docker-compose.yml
+        echo "docker-compose.yml file created from docker-compose.example.yml."
+    else
+         echo "Warning: docker-compose.example.yml not found. (Note: docker-compose.yml should be present in the repo)"
+    fi
 else
-    echo "docker-compose.yml file already exists. Please review it to ensure it contains the correct configuration."
+    echo "docker-compose.yml file already exists."
 fi
 
 if [ ! -f Dockerfile ]; then
-    mv Dockerfile.example Dockerfile
-    echo "Dockerfile created from Dockerfile.example. Please review and update it as needed."
+    if [ -f Dockerfile.example ]; then
+        cp Dockerfile.example Dockerfile
+        echo "Dockerfile created from Dockerfile.example."
+    else
+        echo "Warning: Dockerfile.example not found. (Note: Dockerfile should be present in the repo)"
+    fi
 else
-    echo "Dockerfile already exists. Please review it to ensure it contains the correct configuration."
+    echo "Dockerfile already exists."
 fi
 
 echo "Docker Compose setup complete."
