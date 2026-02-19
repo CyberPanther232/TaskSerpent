@@ -33,10 +33,14 @@ if [ ! -d .git ]; then
     show_progress 2 10 "Cloning repository..."
 
     if git --version > /dev/null 2>&1; then
-        if git clone https://github.com/CyberPanther232/TaskSerpent.git .; then
+        # Capture the exit code of git clone
+        git clone https://github.com/CyberPanther232/TaskSerpent.git .
+        CLONE_EXIT_CODE=$?
+        
+        if [ $CLONE_EXIT_CODE -eq 0 ]; then
             echo "TaskSerpent repository cloned successfully."
         else
-            echo "Failed to clone repository. Ensure the current directory is empty."
+            echo "Failed to clone repository (Exit Code: $CLONE_EXIT_CODE). Ensure the current directory is empty."
             exit 1
         fi
     else
