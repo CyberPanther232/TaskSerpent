@@ -71,19 +71,29 @@ fi
 show_progress 4 10 "Environment check complete"
 
 echo "Would you like to add the environment variables step-by-step? (y/n)"
-read -r response
+# Use /dev/tty to force reading from the terminal user even when piped
+if [ -t 0 ]; then
+    read -r response
+else
+    read -r response < /dev/tty
+fi
 
-if [[ $response == "y" ]]; then
+if [[ $response == "y" ]] || [[ $response == "Y" ]]; then
     echo "Please enter your Tailscale auth key:"
-    read -r TS_AUTHKEY
+    if [ -t 0 ]; then read -r TS_AUTHKEY; else read -r TS_AUTHKEY < /dev/tty; fi
+    
     echo "Please enter your desired Tailscale network name:"
-    read -r TS_NET_NAME
+    if [ -t 0 ]; then read -r TS_NET_NAME; else read -r TS_NET_NAME < /dev/tty; fi
+    
     echo "Please enter your desired Tailscale tag (e.g., tag:docker):"
-    read -r TS_TAG
+    if [ -t 0 ]; then read -r TS_TAG; else read -r TS_TAG < /dev/tty; fi
+    
     echo "Please enter your desired hostname (e.g., taskserpent):"
-    read -r TS_HOSTNAME
+    if [ -t 0 ]; then read -r TS_HOSTNAME; else read -r TS_HOSTNAME < /dev/tty; fi
+    
     echo "Please enter your desired domain name (e.g., ts.net):"
-    read -r TS_DOMAIN_NAME
+    if [ -t 0 ]; then read -r TS_DOMAIN_NAME; else read -r TS_DOMAIN_NAME < /dev/tty; fi
+
     echo "TS_AUTHKEY=$TS_AUTHKEY" > .env
     echo "TS_NET_NAME=$TS_NET_NAME" >> .env
     echo "TS_TAG=$TS_TAG" >> .env
@@ -128,9 +138,13 @@ if [ ! -f Dockerfile ]; then
         cp Dockerfile.example Dockerfile
         echo "Dockerfile created from Dockerfile.example."
     else
-        echo "Warning: Dockerfile.example not found. (Note: Dockerfile should be present in the repo)"
-    fi
+if [ -t 0 ]; then
+    read -r response
 else
+    read -r response < /dev/tty
+fi
+
+if [[ $response == "y" ]] || [[ $response == "Y
     echo "Dockerfile already exists."
 fi
 
