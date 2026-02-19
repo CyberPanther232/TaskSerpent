@@ -33,8 +33,12 @@ if [ ! -d .git ]; then
     show_progress 2 10 "Cloning repository..."
 
     if git --version > /dev/null 2>&1; then
-        git clone https://github.com/CyberPanther232/TaskSerpent.git .
-        echo "TaskSerpent repository cloned successfully."
+        if git clone https://github.com/CyberPanther232/TaskSerpent.git .; then
+            echo "TaskSerpent repository cloned successfully."
+        else
+            echo "Failed to clone repository. Ensure the current directory is empty."
+            exit 1
+        fi
     else
         echo "Git is not installed. Please install Git and run this script again."
         exit 1

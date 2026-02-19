@@ -26,7 +26,27 @@ Built with Python and Flask, TaskSerpent creates a seamless experience where tas
 
 We provide automated setup scripts for both Windows and Linux/macOS environments to get you up and running quickly.
 
-#### 🪟 Windows (PowerShell)
+#### ⚡ One-Line Quick Install
+
+You can run the setup script directly without manually downloading the repository first. **Note: Run this in the folder where you want to install TaskSerpent.**
+
+**Windows (PowerShell):**
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.ps1'))
+```
+*Or using the newer syntax:*
+```powershell
+irm https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.ps1 | iex
+```
+
+**Linux / macOS (Bash):**
+```bash
+curl -sSL https://raw.githubusercontent.com/CyberPanther232/TaskSerpent/main/scripts/setup.sh | bash
+```
+
+---
+
+#### 🪟 Windows (Manual Script Run)
 
 1.  Open PowerShell.
 2.  Navigate to the project directory.
