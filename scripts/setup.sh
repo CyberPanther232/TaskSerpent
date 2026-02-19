@@ -25,6 +25,16 @@ show_progress() {
     echo "" # New line for cleanliness between steps
 }
 
+# Function to read user input safely, even when piped
+read_user_input() {
+    local -n a_variable_name=$1
+    if [ -t 0 ]; then
+        read -r a_variable_name
+    else
+        read -r a_variable_name < /dev/tty
+    fi
+}
+
 echo "Downloading and setting up TaskSerpent environment..."
 show_progress 1 10 "Initializing setup..."
 
@@ -58,12 +68,17 @@ show_progress 3 10 "Checking environment configuration..."
 
 # Create a .env file if it doesn't exist
 if [ ! -f .env ]; then
-    echo "TS_AUTHKEY=your-tailscale-auth-key" > .env
-    echo "TS_NET_NAME=taskserpent_ts_net" >> .env
-    echo "TS_TAG=tag:docker" >> .env
-    echo "TS_HOSTNAME=taskserpent" >> .env
-    echo "TS_DOMAIN_NAME=ts.net" >> .env
-    echo ".env file created. Please update it with your Tailscale auth key and desired settings."
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo ".env file created from example. Please update it with your Tailscale auth key."
+    else
+        echo "TS_AUTHKEY=your-tailscale-auth-key" > .env
+        echo "TS_NET_NAME=taskserpent_ts_net" >> .env
+        echo "TS_TAG=tag:docker" >> .env
+        echo "TS_HOSTNAME=taskserpent" >> .env
+        echo "TS_DOMAIN_NAME=ts.net" >> .env
+        echo ".env file created. Please update it with your Tailscale auth key and desired settings."
+    fi
 else
     echo ".env file already exists. Please ensure it contains the correct values."
 fi
@@ -71,35 +86,37 @@ fi
 show_progress 4 10 "Environment check complete"
 
 echo "Would you like to add the environment variables step-by-step? (y/n)"
-# Use /dev/tty to force reading from the terminal user even when piped
-if [ -t 0 ]; then
-    read -r response
-else
-    read -r response < /dev/tty
-fi
+read_user_input response
 
 if [[ $response == "y" ]] || [[ $response == "Y" ]]; then
     echo "Please enter your Tailscale auth key:"
-    if [ -t 0 ]; then read -r TS_AUTHKEY; else read -r TS_AUTHKEY < /dev/tty; fi
+    read_user_input TS_AUTHKEY
     
-    echo "Please enter your desired Tailscale network name:"
-    if [ -t 0 ]; then read -r TS_NET_NAME; else read -r TS_NET_NAME < /dev/tty; fi
+    echo "Please enter your desired Tailscale network name (default: taskserpent_ts_net):"
+    read_user_input TS_NET_NAME
+    TS_NET_NAME=${TS_NET_NAME:-taskserpent_ts_net}
     
-    echo "Please enter your desired Tailscale tag (e.g., tag:docker):"
-    if [ -t 0 ]; then read -r TS_TAG; else read -r TS_TAG < /dev/tty; fi
-    
-    echo "Please enter your desired hostname (e.g., taskserpent):"
-    if [ -t 0 ]; then read -r TS_HOSTNAME; else read -r TS_HOSTNAME < /dev/tty; fi
-    
-    echo "Please enter your desired domain name (e.g., ts.net):"
-    if [ -t 0 ]; then read -r TS_DOMAIN_NAME; else read -r TS_DOMAIN_NAME < /dev/tty; fi
+    echo "Please enter your desired Tailscale tag (e.g., tag:docker, default: tag:docker):"
+    read_user_input TS_TAG
+    TS_TAG=${TS_TAG:-tag:docker}
 
-    echo "TS_AUTHKEY=$TS_AUTHKEY" > .env
-    echo "TS_NET_NAME=$TS_NET_NAME" >> .env
-    echo "TS_TAG=$TS_TAG" >> .env
-    echo "TS_HOSTNAME=$TS_HOSTNAME" >> .env
-    echo "TS_DOMAIN_NAME=$TS_DOMAIN_NAME" >> .env
-    echo ".env file created with your input."
+    echo "Please enter your desired hostname (e.g., taskserpent, default: taskserpent):"
+    read_user_input TS_HOSTNAME
+    TS_HOSTNAME=${TS_HOSTNAME:-taskserpent}
+    
+    echo "Please enter your desired domain name (e.g., ts.net, default: ts.net):"
+    read_user_input TS_DOMAIN_NAME
+    TS_DOMAIN_NAME=${TS_DOMAIN_NAME:-ts.net}
+
+    {
+        echo "TS_AUTHKEY=$TS_AUTHKEY"
+        echo "TS_NET_NAME=$TS_NET_NAME"
+        echo "TS_TAG=$TS_TAG"
+        echo "TS_HOSTNAME=$TS_HOSTNAME"
+        echo "TS_DOMAIN_NAME=$TS_DOMAIN_NAME"
+    } > .env
+    
+    echo ".env file updated with your input."
 else
     echo "Skipping environment variable setup. Please ensure your .env file is correctly configured."
 fi
@@ -108,9 +125,10 @@ show_progress 6 10 "Environment variables configured"
 
 echo "Environment Variables setup complete."
 
-echo "Meaning Docker Compose setup..."
-show_progress 7 10 "Configuring Docker files..."
+echo "Beginning configuration file setup..."
+show_progress 7 10 "Configuring files..."
 
+# Create serve.json from its example if it doesn't exist
 if [ ! -f serve.json ]; then
     if [ -f serve.json.example ]; then
         cp serve.json.example serve.json
@@ -122,39 +140,15 @@ else
     echo "serve.json file already exists."
 fi
 
-if [ ! -f docker-compose.yml ]; then
-    if [ -f docker-compose.example.yml ]; then
-        cp docker-compose.example.yml docker-compose.yml
-        echo "docker-compose.yml file created from docker-compose.example.yml."
-    else
-         echo "Warning: docker-compose.example.yml not found. (Note: docker-compose.yml should be present in the repo)"
-    fi
-else
-    echo "docker-compose.yml file already exists."
-fi
+# docker-compose.yml and Dockerfile are tracked in git, so no need to create them.
 
-if [ ! -f Dockerfile ]; then
-    if [ -f Dockerfile.example ]; then
-        cp Dockerfile.example Dockerfile
-        echo "Dockerfile created from Dockerfile.example."
-    else
-if [ -t 0 ]; then
-    read -r response
-else
-    read -r response < /dev/tty
-fi
-
-if [[ $response == "y" ]] || [[ $response == "Y
-    echo "Dockerfile already exists."
-fi
-
-echo "Docker Compose setup complete."
+echo "Configuration file setup complete."
 show_progress 8 10 "Docker configuration ready"
 
 echo "Setup complete. You can now run 'docker-compose up -d' or I can start it for you. Would you like me to start the containers now? (y/n)"
-read -r response
+read_user_input response
 
-if [[ $response == "y" ]]; then
+if [[ $response == "y" ]] || [[ $response == "Y" ]]; then
     echo "Starting Docker Compose..."
     show_progress 9 10 "Starting containers..."
     docker-compose up -d
@@ -170,4 +164,4 @@ else
 fi
 
 show_progress 10 10 "Setup finished successfully!"
-echo "Setup complete. Please ensure you have updated the .env, serve.json, docker-compose.yml, and Dockerfile with the correct values for your environment before starting the containers."
+echo "Setup complete. Please ensure you have updated the .env and serve.json with the correct values for your environment before starting the containers."
