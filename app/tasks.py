@@ -1,7 +1,12 @@
 import toons
 import os
 import uuid
+import logging
 from datetime import datetime
+
+# Set up basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Use absolute path to ensure we find the file correctly
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,6 +18,7 @@ def _ensure_file_exists():
         os.makedirs(os.path.dirname(TASKS_FILE))
     
     if not os.path.exists(TASKS_FILE):
+        logger.info(f"Creating new task file at {TASKS_FILE}")
         with open(TASKS_FILE, 'w') as f:
             # Initialize with empty structured list
             f.write("tasks[0]{id,description,status,created_at}:\n")
@@ -22,19 +28,32 @@ def _read_toon_data():
     _ensure_file_exists()
     try:
         with open(TASKS_FILE, 'r') as f:
-            return toons.load(f)
+            content = f.read()
+            if not content.strip():
+                return {'tasks': []}
+            data = toons.loads(content)
+            if data is None:
+                return {'tasks': []}
+            if not isinstance(data, dict):
+                logger.warning(f"TOON data is not a dictionary: {type(data)}")
+                return {'tasks': []}
+            return data
     except Exception as e:
-        print(f"Error reading TOON file: {e}")
+        logger.error(f"Error reading TOON file: {e}")
         return {'tasks': []}
 
 def _save_toon_data(data):
     """Save full TOON data structure."""
     _ensure_file_exists()
     try:
+        content = toons.dumps(data)
         with open(TASKS_FILE, 'w') as f:
-            toons.dump(data, f)
+            f.write(content)
+            if not content.endswith('\n'):
+                f.write('\n')
+        logger.info("TOON data saved successfully")
     except Exception as e:
-        print(f"Error writing TOON file: {e}")
+        logger.error(f"Error writing TOON file: {e}")
 
 def get_tasks_raw():
     """Return the raw list of task dictionaries."""
@@ -49,8 +68,9 @@ def get_tasks():
 
 def add_task_to_file(task_description):
     """Adds a new task with generated metadata."""
+    logger.info(f"Adding task: {task_description}")
     data = _read_toon_data()
-    if 'tasks' not in data:
+    if 'tasks' not in data or not isinstance(data['tasks'], list):
         data['tasks'] = []
     
     new_task = {
@@ -65,15 +85,18 @@ def add_task_to_file(task_description):
 
 def delete_task_from_file(task_description):
     """
-    Removes a task by matching its description (simple implementation).
-    Ideally should delete by ID, but routes currently pass description.
+    Removes a task by matching its description.
     """
+    logger.info(f"Deleting task with description: {task_description}")
     data = _read_toon_data()
-    if 'tasks' in data:
+    if 'tasks' in data and isinstance(data['tasks'], list):
         # Keep tasks that DO NOT match the description
         initial_count = len(data['tasks'])
-        data['tasks'] = [t for t in data['tasks'] if t.get('description') != task_description]
+        data['tasks'] = [t for t in data['tasks'] if str(t.get('description')).strip() != str(task_description).strip()]
         
         # Only save if we actually removed something
         if len(data['tasks']) < initial_count:
             _save_toon_data(data)
+            logger.info(f"Deleted {initial_count - len(data['tasks'])} task(s)")
+        else:
+            logger.warning(f"No task found with description: {task_description}")
