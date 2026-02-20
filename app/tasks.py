@@ -1,4 +1,4 @@
-from . import toons
+import app.toons as toons
 import os
 import uuid
 from datetime import datetime
