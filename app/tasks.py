@@ -1,4 +1,4 @@
-import app.toons as toons
+import toons
 import os
 import uuid
 from datetime import datetime
@@ -22,8 +22,7 @@ def _read_toon_data():
     _ensure_file_exists()
     try:
         with open(TASKS_FILE, 'r') as f:
-            content = f.read()
-            return toons.parse(content)
+            return toons.load(f)
     except Exception as e:
         print(f"Error reading TOON file: {e}")
         return {'tasks': []}
@@ -33,7 +32,7 @@ def _save_toon_data(data):
     _ensure_file_exists()
     try:
         with open(TASKS_FILE, 'w') as f:
-            f.write(toons.dump(data))
+            toons.dump(data, f)
     except Exception as e:
         print(f"Error writing TOON file: {e}")
 

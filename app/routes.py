@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for
 from app import app
 # Import the TOON-based task handling logic - inside functions or delay to avoid circular issues?
 # But importing functions is usually fine.
-import app.tasks as tasks
+from . import tasks
 
 @app.route('/')
 def index():
