@@ -7,7 +7,7 @@ services:
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_EXTRA_ARGS=--advertise-tags=tag:docker
+      - TS_EXTRA_ARGS=--advertise-tags=${TS_TAG}
       # This tells Tailscale to load your proxy settings on startup
       - TS_SERVE_CONFIG=/config/serve.json
     volumes:
@@ -19,18 +19,21 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     networks:
-      - taskserpent_ts_net
+      - ${TS_NET_NAME}
 
   taskserpent-app:
     build: .
     container_name: taskserpent-app
     restart: always
     network_mode: "service:taskserpent-tailscale-sidecar"
+    volumes:
+      - ./tasklists:/app/tasklists
     depends_on:
       - taskserpent-tailscale-sidecar
 
 volumes:
   taskserpent-tailscale-sidecar-state:
+  
 
 networks:
   taskserpent_ts_net:

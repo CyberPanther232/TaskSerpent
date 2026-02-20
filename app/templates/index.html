@@ -27,9 +27,13 @@
     <ul>
         {% for task in tasks %}
         <li>
-            {{ task }}
+            <div style="flex-grow: 1;">
+                <strong>{{ task.description }}</strong>
+                <br>
+                <small style="color: #888;">Created: {{ task.created_at }} | Status: {{ task.status }}</small>
+            </div>
             <form action="{{ url_for('delete_task') }}" method="POST" style="margin:0; display:inline;">
-                <input type="hidden" name="task" value="{{ task }}">
+                <input type="hidden" name="task" value="{{ task.description }}">
                 <input type="hidden" name="source" value="index">
                 <button type="submit" class="delete-btn">Delete</button>
             </form>

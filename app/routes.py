@@ -1,29 +1,7 @@
 from flask import render_template, request, redirect, url_for
 from . import app
-import os
-
-TASKS_FILE = 'tasks.txt'
-
-def get_tasks():
-    if not os.path.exists(TASKS_FILE):
-        return []
-    with open(TASKS_FILE, 'r') as f:
-        return [line.strip() for line in f.readlines()]
-
-def add_task_to_file(task):
-    with open(TASKS_FILE, 'a') as f:
-        f.write(task + '\n')
-
-def delete_task_from_file(task_text):
-    if not os.path.exists(TASKS_FILE):
-        return
-    
-    current_tasks = get_tasks()
-    if task_text in current_tasks:
-        current_tasks.remove(task_text)
-        with open(TASKS_FILE, 'w') as f:
-            for t in current_tasks:
-                f.write(t + '\n')
+# Import the TOON-based task handling logic
+from .tasks import get_tasks, add_task_to_file, delete_task_from_file
 
 @app.route('/')
 def index():
