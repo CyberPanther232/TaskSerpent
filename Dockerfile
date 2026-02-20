@@ -2,12 +2,11 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY /app /app/
-COPY main.py /main.py
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "/main.py"]
+CMD ["python", "main.py"]

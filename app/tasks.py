@@ -14,14 +14,27 @@ TASKS_FILE = os.path.join(BASE_DIR, 'tasklists', 'tasks.toon')
 
 def _ensure_file_exists():
     """Ensure tasklists directory and tasks.toon file exist with initial structure."""
-    if not os.path.exists(os.path.dirname(TASKS_FILE)):
-        os.makedirs(os.path.dirname(TASKS_FILE))
+    dir_path = os.path.dirname(TASKS_FILE)
+    if not os.path.exists(dir_path):
+        logger.info(f"Creating directory {dir_path}")
+        os.makedirs(dir_path)
     
+    if os.path.exists(TASKS_FILE) and os.path.isdir(TASKS_FILE):
+        logger.error(f"CRITICAL: {TASKS_FILE} is a directory! Attempting to remove it to recover.")
+        try:
+            os.rmdir(TASKS_FILE)
+        except Exception as e:
+            logger.error(f"Failed to remove directory {TASKS_FILE}: {e}")
+            return
+
     if not os.path.exists(TASKS_FILE):
         logger.info(f"Creating new task file at {TASKS_FILE}")
-        with open(TASKS_FILE, 'w') as f:
-            # Initialize with empty structured list
-            f.write("tasks[0]{id,description,status,created_at}:\n")
+        try:
+            with open(TASKS_FILE, 'w') as f:
+                # Initialize with empty structured list
+                f.write("tasks[0]{id,description,status,created_at}:\n")
+        except Exception as e:
+            logger.error(f"Failed to create task file: {e}")
 
 def _read_toon_data():
     """Read full TOON data structure."""
