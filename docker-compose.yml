@@ -27,12 +27,13 @@ services:
     restart: always
     network_mode: "service:taskserpent-tailscale-sidecar"
     volumes:
-      - ./tasks.toon:/app/tasklists/tasks.toon:rw
+      - taskserpent-app-tasks:/app/tasklists
     depends_on:
       - taskserpent-tailscale-sidecar
 
 volumes:
   taskserpent-tailscale-sidecar-state:
+  taskserpent-app-tasks:
   
 
 networks:
